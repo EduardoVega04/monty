@@ -49,6 +49,7 @@ void split_line(char *line, unsigned int line_number);
 void execute_opcode(char **instructions, int line_number);
 void error_handler(char **tokens);
 ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+void free_dlinklist(stack_t **stack);
 
 extern stack_t *head;
 

@@ -2,6 +2,23 @@
 
 stack_t *head = NULL;
 
+void free_dlinklist(stack_t **stack)
+{
+	stack_t *tmp = NULL;
+
+	if(*stack == NULL)
+		return;
+
+	tmp = *stack;
+
+	while (*stack != NULL)
+	{
+		tmp = *stack;
+		*stack = (*stack)->next;
+		free(tmp);
+	}
+}
+
 void read_file(FILE *stream)
 {
 	ssize_t characters_read = 0;
@@ -18,7 +35,7 @@ void read_file(FILE *stream)
 
 void split_line(char *line, unsigned int line_number)
 {
-	char *delimiters = " ;,!¡¿?'\"\n\t";
+	char *delimiters = " ;,!¡¿?'\"\n\t$";
 	char **instructions = NULL;
 	char *token = NULL;
 	int i, largo;

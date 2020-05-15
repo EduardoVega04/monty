@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
 	read_file(fp);
 	fclose(fp);
-
+	free_dlinklist(&head);
 	return (0);
 }
 
