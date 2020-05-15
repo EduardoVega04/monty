@@ -1,136 +1,99 @@
 #include "monty.h"
 
-stack_t *head = NULL;
-
-void free_dlinklist(stack_t **stack)
+/**
+ * _swap - swaps the top two elements of the stack.
+ * @stack: Stack
+ * @line_number: Number of the line
+ */
+void _swap(stack_t **stack, unsigned int line_number)
 {
-	stack_t *tmp = NULL;
+	stack_t *current = *stack;
+	int temp = 0;
 
-	if(*stack == NULL)
-		return;
-
-	tmp = *stack;
-
-	while (*stack != NULL)
+	if (!*stack || !(*stack)->next)
 	{
-		tmp = *stack;
-		*stack = (*stack)->next;
-		free(tmp);
-	}
-}
-
-void read_file(FILE *stream)
-{
-	ssize_t characters_read = 0;
-	int lineNumber = 0;
-	size_t buff_size = 0;
-	char *line = NULL;
-
-	while ((characters_read = getline(&line, &buff_size, stream)) != -1)
-	{
-		lineNumber++;
-		split_line(line, lineNumber);
-	}
-}
-
-void split_line(char *line, unsigned int line_number)
-{
-	char *delimiters = " ;,!¡¿?'\"\n\t$";
-	char **instructions = NULL;
-	char *token = NULL;
-	int i, largo;
-
-	for (largo = 0; line[largo] != '\0'; largo++)
-		;
-
-	instructions = malloc(50);
-	for (i = 0; i < 2; i++)
-	{
-		instructions[i] = malloc(largo);
-	}
-
-	token = strtok(line, delimiters);
-	instructions[0] = token;
-
-	token = strtok(NULL, delimiters);
-	instructions[1] = token;
-
-	if (!instructions[0])
-		return;
-
-	execute_opcode(instructions, line_number);
-}
-
-void execute_opcode(char **instructions, int line_number)
-{
-	int i;
-
-	if (strcmp(instructions[0], "push") == 0)
-	{
-		if (!instructions[1])
-		{
-			fprintf(stderr, "L<%d>: usage: push integer\n", line_number);
-			exit (EXIT_FAILURE);
-		}
-
-		for (i = 0; instructions[1][i] != '\0'; i++)
-		{
-			if (isdigit(instructions[1][i]) == 0)
-			{
-				fprintf(stderr, "L<%d>: usage: push integer\n", line_number);
-				exit (EXIT_FAILURE);
-			}
-		}
-		push(&head, atoi(instructions[1]));
-	}
-	else if (strcmp(instructions[0], "pall") == 0)
-	{
-		pall(&head);
-	}
-	else if (strcmp(instructions[0], "pint") == 0)
-	{
-		pint(&head, line_number);
-	}
-	else if (strcmp(instructions[0], "pop") == 0)
-	{
-		pop(&head, line_number);
-	}
-	else if (strcmp(instructions[0], "swap") == 0)
-	{
-		swap(&head, line_number);
-	}
-	else if (strcmp(instructions[0], "add") == 0)
-	{
-		add(&head, line_number);
-	}
-	else
-	{
-		fprintf(stderr, "L<%d>: unknown instruction <%s>\n", line_number, instructions[0]);
+		fprintf(stderr, "L%d: can't swap, stack too short\n", line_number);
+		cleanStack(stack);
 		exit(EXIT_FAILURE);
 	}
+	temp = current->n;
+	current->n = current->next->n;
+	current->next->n = temp;
 }
-
-void add(stack_t **stack, unsigned int line_number)
+/**
+ * _pop - removes the top element of the stack.
+ * @stack: Stack list
+ * @line_number: Number of the line
+ */
+void _pop(stack_t **stack, unsigned int line_number)
 {
-	int suma = 0;
-	stack_t *tmp = *stack;
+	stack_t *current = NULL;
 
-	suma += (*stack)->n;
-
-	if ((*stack)->next == NULL)
+	if (*stack == NULL || stack == NULL)
 	{
-		fprintf(stderr, "L<%d>: can't add, stack too short\n", line_number);
+		dprintf(STDERR_FILENO, "L%d: can't pop an empty stack\n", line_number);
+		cleanStack(stack);
 		exit(EXIT_FAILURE);
 	}
 
-	*stack = (*stack)->next;
-	(*stack)->n += suma;
+	current = *stack;
 
-	free(tmp);
+	*stack = current->next;
+	if (current->next != NULL)
+		current->next->prev = current->prev;
+	free(current);
+}
+/**
+ * _add - function add two integer
+ * @stack: Stack list
+ * @line_number: Number of the line
+ */
+void _add(stack_t **stack, unsigned int line_number)
+{
+	stack_t *current = NULL;
+	int sum = 0;
+
+	if (!*stack || !(*stack)->next)
+	{
+		fprintf(stderr, "L%d: can't add, stack too short\n", line_number);
+		cleanStack(stack);
+		exit(EXIT_FAILURE);
+	}
+	current = *stack;
+	sum = current->n + current->next->n;
+	current->next->n = sum;
+	_pop(stack, line_number);
 }
 
-void nop()
+/**
+ * _sub - subtracts the top element of the stack from the second.
+ * @stack: Stack list
+ * @line_number: Number of line
+ */
+void _sub(stack_t **stack, unsigned int line_number)
 {
-	return;
+	stack_t *current = *stack;
+	int sub = 0;
+
+	if (!current || !current->next)
+	{
+		fprintf(stderr, "L%d: can't sub, stack too short\n", line_number);
+		cleanStack(stack);
+		exit(EXIT_FAILURE);
+	}
+	sub = current->next->n - current->n;
+	current->next->n = sub;
+	_pop(stack, line_number);
+}
+
+/**
+ * _nop - function void
+ * @stack: Stack list
+ * @line_number: Number of the line
+ */
+void _nop(stack_t **stack, unsigned int line_number)
+{
+	(void)stack;
+	(void)line_number;
 }
 

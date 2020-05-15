@@ -1,11 +1,15 @@
 #ifndef MONTY_H
 #define MONTY_H
-/* LIBRARIES */
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
+
 /**
    * struct stack_s - doubly linked list representation of a stack (or queue)
     * @n: integer
@@ -36,21 +40,49 @@ typedef struct instruction_s
 			void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
-/* ----PROTOTYPES---- */
-void push(stack_t **stack, unsigned int line_number);
-void pall(stack_t **stack);
-void pint(stack_t **stack, unsigned int line_number);
-void pop(stack_t **stack, unsigned int line_number);
-void swap(stack_t **stack, unsigned int line_number);
-void add(stack_t **stack, unsigned int line_number);
-void nop();
-void read_file(FILE *stream);
-void split_line(char *line, unsigned int line_number);
-void execute_opcode(char **instructions, int line_number);
-void error_handler(char **tokens);
-ssize_t getline(char **lineptr, size_t *n, FILE *stream);
-void free_dlinklist(stack_t **stack);
+/**
+   * struct glob_s - global and its funcs
+    * @fd: File descriptor
+	 * @line: Line to getline
+	  *
+	   * Description: To handle the file and getline
+	    */
+typedef struct glob_s
+{
+		FILE *fd;
+			char *line;
+} glob_t;
 
-extern stack_t *head;
+extern glob_t global;
+extern int value;
+
+void handle_command(char *argv);
+
+int get_opc(stack_t **stack, char *arg, char *item, int count);
+
+void _push(stack_t **stack, unsigned int line_number);
+void _pall(stack_t **stack, unsigned int line_number);
+void _pint(stack_t **stack, unsigned int line_number);
+void _swap(stack_t **stack, unsigned int line_number);
+void _pop(stack_t **stack, unsigned int line_number);
+void _add(stack_t **stack, unsigned int line_number);
+void _sub(stack_t **stack, unsigned int line_number);
+void _nop(stack_t **stack, unsigned int line_number);
+void _div(stack_t **stack, unsigned int line_number);
+void _mul(stack_t **stack, unsigned int line_number);
+void _mod(stack_t **stack, unsigned int line_number);
+void _pchar(stack_t **stack, unsigned int line_number);
+void _pstr(stack_t **stack, unsigned int line_number);
+void free_dlistint(stack_t *stack);
+void cleanStack(stack_t **stack);
+
+/*Help*/
+int _isdigit(char *c);
+stack_t *new_Node(int n);
+
+/* handle_errors */
+void push_error(FILE *fd, char *line, stack_t *stack, int count);
+void ins_error(FILE *fd, char *line, stack_t *stack, char *count, int item);
 
 #endif
+
