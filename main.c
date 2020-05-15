@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 	}
 
 	read_file(fp);
+	fclose(fp);
 
 	return (0);
 }
