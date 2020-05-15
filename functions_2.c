@@ -46,8 +46,24 @@ void split_line(char *line, unsigned int line_number)
 
 void execute_opcode(char **instructions, int line_number)
 {
+	int i;
+
 	if (strcmp(instructions[0], "push") == 0)
 	{
+		if (!instructions[1])
+		{
+			fprintf(stderr, "L<%d>: usage: push integer\n", line_number);
+			exit (EXIT_FAILURE);
+		}
+
+		for (i = 0; instructions[1][i] != '\0'; i++)
+		{
+			if (isdigit(instructions[1][i]) == 0)
+			{
+				fprintf(stderr, "L<%d>: usage: push integer\n", line_number);
+				exit (EXIT_FAILURE);
+			}
+		}
 		push(&head, atoi(instructions[1]));
 	}
 	else if (strcmp(instructions[0], "pall") == 0)
